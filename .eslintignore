@@ -1,0 +1,6 @@
+node_modules
+build
+config
+coverage
+scripts
+target

@@ -1,0 +1,10 @@
+node_modules
+build
+.DS_Store
+npm-debug.log
+coverage
+target/*
+linting.html
+*.png
+report.xml
+package-lock.json
