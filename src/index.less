@@ -1,0 +1,56 @@
+.node {
+  font: 300 10px "Helvetica Neue", Helvetica, Arial, sans-serif;
+  fill: #bbb;
+}
+
+.node:hover {
+  fill: #000;
+  font-weight: 600;
+}
+
+.kill,
+.wed,
+.parented {
+  stroke: lightblue;
+  stroke-opacity: 0.4;
+  fill: none;
+  pointer-events: none;
+}
+
+.node--source {
+  fill: #2ca02c;
+}
+
+.node--target {
+  fill: #d62728;
+}
+
+.kill--target,
+.parented--target {
+  stroke-dasharray: 5px 5px;
+}
+
+.kill--source,
+.kill--target,
+.wed--source,
+.wed--target,
+.parented--target,
+.parented--source {
+  stroke-opacity: 1;
+  stroke-width: 2px;
+}
+
+.kill--source,
+.kill--target {
+  stroke: red;
+}
+
+.wed--source,
+.wed--target {
+  stroke: purple;
+}
+
+.parented--source,
+.parented--target {
+  stroke: green;
+}
