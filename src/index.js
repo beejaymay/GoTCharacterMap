@@ -20,13 +20,12 @@ var svg = d3.select("body").append("svg")
   .append("g")
   .attr("transform", "translate(" + radius + "," + radius + ")");
 
-var kill = svg.append("g").selectAll(".kill"),
-  wed = svg.append("g").selectAll(".wed"),
-  parented = svg.append("g").selectAll(".parented"),
+var kill = svg.append("g").selectAll(".link.kill"),
+  wed = svg.append("g").selectAll(".link.wed"),
+  parented = svg.append("g").selectAll(".link.parented"),
   node = svg.append("g").selectAll(".node");
 
-var root = family(allCharacters)
-  .sum(function(d) { return d.size; });
+var root = family(allCharacters);
 
 cluster(root);
 
@@ -35,7 +34,7 @@ kill = kill
   .enter()
   .append("path")
   .each(function(d) { d.source = d[0], d.target = d[d.length - 1]; })
-  .attr("class", "kill")
+  .attr("class", "link kill")
   .attr("d", line);
 
 wed = wed
@@ -43,7 +42,7 @@ wed = wed
   .enter()
   .append("path")
   .each(function(d) { d.source = d[0], d.target = d[d.length - 1]; })
-  .attr("class", "wed")
+  .attr("class", "link wed")
   .attr("d", line);
 
 parented = parented
@@ -51,7 +50,7 @@ parented = parented
   .enter()
   .append("path")
   .each(function(d) { d.source = d[0], d.target = d[d.length - 1]; })
-  .attr("class", "parented")
+  .attr("class", "link parented")
   .attr("d", line);
 
 node = node
@@ -70,45 +69,37 @@ function mouseovered(d) {
   node
     .each(function(n) { n.target = n.source = false; });
 
-  kill
-    .classed("kill--target", function(l) { if (l.target === d) return l.source.source = true; })
-    .classed("kill--source", function(l) { if (l.source === d) return l.target.target = true; })
-    .filter(function(l) { return l.target === d || l.source === d; })
-    .raise();
-
-  wed
-    .classed("wed--target", function(l) { if (l.target === d) return l.source.source = true; })
-    .classed("wed--source", function(l) { if (l.source === d) return l.target.target = true; })
-    .filter(function(l) { return l.target === d || l.source === d; })
-    .raise();
-
-  parented
-    .classed("parented--target", function(l) { if (l.target === d) return l.source.source = true; })
-    .classed("parented--source", function(l) { if (l.source === d) return l.target.target = true; })
-    .filter(function(l) { return l.target === d || l.source === d; })
-    .raise();
+  setClasses(wed, d);
+  setClasses(kill, d);
+  setClasses(parented, d);
 
   node
-    .classed("node--target", function(n) { return n.target; })
-    .classed("node--source", function(n) { return n.source; });
+    .classed("target", function(n) { return n.target; })
+    .classed("source", function(n) { return n.source; });
+}
+
+function setClasses(link, d) {
+  link
+    .classed("target", function(l) { if (l.target === d) return l.source.source = true; })
+    .classed("source", function(l) { if (l.source === d) return l.target.target = true; })
+    .filter(function(l) { return l.target === d || l.source === d; })
+    .raise();
+}
+
+function purgeClasses(link, d) {
+  link
+    .classed("target", false)
+    .classed("source", false);
 }
 
 function mouseouted(d) {
-  kill
-    .classed("kill--target", false)
-    .classed("kill--source", false);
-
-  wed
-    .classed("wed--target", false)
-    .classed("wed--source", false);
-
-  parented
-    .classed("parented--target", false)
-    .classed("parented--source", false);
+  purgeClasses(kill, d);
+  purgeClasses(wed, d);
+  purgeClasses(parented, d);
 
   node
-    .classed("node--target", false)
-    .classed("node--source", false);
+    .classed("target", false)
+    .classed("source", false);
 }
 
 // Lazily construct the package hierarchy from class names.
