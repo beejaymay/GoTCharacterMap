@@ -56,7 +56,6 @@ module.exports = {
       title: 'Mully',
       template: 'src/index.ejs',
       filename: 'index.html',
-      favicon: './static/favicon.ico',
       chunks: ['app', 'vendor']
     }),
     new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
