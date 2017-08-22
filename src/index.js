@@ -1,5 +1,6 @@
 import * as d3 from 'd3'
 import * as allCharacters from './characters.json'
+import _ from 'lodash'
 import './index.less'
 
 var diameter = 960,
@@ -8,11 +9,6 @@ var diameter = 960,
 
 var cluster = d3.cluster()
   .size([360, innerRadius]);
-
-var line = d3.radialLine()
-  .curve(d3.curveBundle.beta(0.85))
-  .radius(function(d) { return d.y; })
-  .angle(function(d) { return d.x / 180 * Math.PI; });
 
 var svg = d3.select("body").append("svg")
   .attr("width", diameter)
@@ -25,33 +21,56 @@ var kill = svg.append("g").selectAll(".link.kill"),
   parented = svg.append("g").selectAll(".link.parented"),
   node = svg.append("g").selectAll(".node");
 
+function line(linknum) {
+  var beta = 0.95 - (linknum * 0.10)
+  return d3.radialLine()
+    .curve(d3.curveBundle.beta(beta))
+    .radius(function(d) { return d.y; })
+    .angle(function(d) { return d.x / 180 * Math.PI; });
+}
+
 var root = family(allCharacters);
+var map = {};
+root.leaves().forEach(function(d) {
+  map[d.data.name] = d;
+});
+
+let curLine = line;
 
 cluster(root);
 
 kill = kill
-  .data(characterKilled(root.leaves()))
+  .data(characterLinked(map, 'killed'))
   .enter()
   .append("path")
-  .each(function(d) { d.source = d[0], d.target = d[d.length - 1]; })
+  .each(function(d) {
+    d.source = d[0]
+    d.target = d[d.length - 1]
+    d3.select(this).attr("d", line(d.linknum))
+  })
   .attr("class", "link kill")
-  .attr("d", line);
 
 wed = wed
-  .data(characterWed(root.leaves()))
+  .data(characterLinked(map, 'wed'))
   .enter()
   .append("path")
-  .each(function(d) { d.source = d[0], d.target = d[d.length - 1]; })
+  .each(function(d) {
+    d.source = d[0]
+    d.target = d[d.length - 1]
+    d3.select(this).attr("d", line(d.linknum))
+  })
   .attr("class", "link wed")
-  .attr("d", line);
 
 parented = parented
-  .data(characterParented(root.leaves()))
+  .data(characterLinked(map, 'parented'))
   .enter()
   .append("path")
-  .each(function(d) { d.source = d[0], d.target = d[d.length - 1]; })
+  .each(function(d) {
+    d.source = d[0]
+    d.target = d[d.length - 1]
+    d3.select(this).attr("d", line(d.linknum))
+  })
   .attr("class", "link parented")
-  .attr("d", line);
 
 node = node
   .data(root.leaves())
@@ -66,8 +85,7 @@ node = node
   .on("mouseout", mouseouted);
 
 function mouseovered(d) {
-  node
-    .each(function(n) { n.target = n.source = false; });
+  node.each(function(n) { n.target = n.source = false; });
 
   setClasses(wed, d);
   setClasses(kill, d);
@@ -86,23 +104,22 @@ function setClasses(link, d) {
     .raise();
 }
 
-function purgeClasses(link, d) {
+function purgeClasses(link) {
   link
     .classed("target", false)
     .classed("source", false);
 }
 
 function mouseouted(d) {
-  purgeClasses(kill, d);
-  purgeClasses(wed, d);
-  purgeClasses(parented, d);
+  purgeClasses(kill);
+  purgeClasses(wed);
+  purgeClasses(parented);
 
   node
     .classed("target", false)
     .classed("source", false);
 }
 
-// Lazily construct the package hierarchy from class names.
 function family(characters) {
   var map = {};
 
@@ -126,61 +143,24 @@ function family(characters) {
   return d3.hierarchy(map[""]);
 }
 
-// Return a list of imports for the given array of nodes.
-function characterKilled(characters) {
-  var map = {},
-      killed = [];
+function characterLinked(map, linkType) {
 
-  // Compute a map from name to node.
-  characters.forEach(function(d) {
-    map[d.data.name] = d;
-  });
-
-  // For each import, construct a link from the source to target node.
-  characters.forEach(function(d) {
-    //console.log(d)
-    if (d.data.killed) d.data.killed.forEach(function(i) {
-      killed.push(map[d.data.name].path(map[i]));
+  var links = [];
+  root.leaves().forEach(function(d) {
+    d.data[linkType].forEach(function(i) {
+      links.push(map[d.data.name].path(map[i]));
     });
   });
 
-  return killed;
-}
+  links.forEach(function (i, idx) {
+    var linknum = 1;
+    links.slice(idx + 1).forEach(function (j, idx) {
+      if (i[0].data.name == j[j.length - 1].data.name) {
+        linknum ++
+      }
+    })
+    i.linknum = linknum;
+  })
 
-function characterParented(characters) {
-  var map = {},
-      parented = [];
-
-  // Compute a map from name to node.
-  characters.forEach(function(d) {
-    map[d.data.name] = d;
-  });
-
-  // For each import, construct a link from the source to target node.
-  characters.forEach(function(d) {
-    if (d.data.parented) d.data.parented.forEach(function(i) {
-      parented.push(map[d.data.name].path(map[i]));
-    });
-  });
-
-  return parented;
-}
-
-function characterWed(characters) {
-  var map = {},
-      wed = [];
-
-  // Compute a map from name to node.
-  characters.forEach(function(d) {
-    map[d.data.name] = d;
-  });
-
-  // For each import, construct a link from the source to target node.
-  characters.forEach(function(d) {
-    if (d.data.wed) d.data.wed.forEach(function(i) {
-      wed.push(map[d.data.name].path(map[i]));
-    });
-  });
-
-  return wed;
+  return links;
 }
