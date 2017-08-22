@@ -16,10 +16,11 @@ var svg = d3.select("body").append("svg")
   .append("g")
   .attr("transform", "translate(" + radius + "," + radius + ")")
 
-var killed = svg.append("g").selectAll(".link.killed"),
-  wed = svg.select("g").selectAll(".link.wed"),
-  parented = svg.select("g").selectAll(".link.parented"),
-  node = svg.append("g").selectAll(".node")
+var links = {}
+  links.wed = svg.append("g").selectAll(".link.wed")
+  links.parented = svg.select("g").selectAll(".link.parented")
+  links.killed = svg.select("g").selectAll(".link.killed")
+var node = svg.append("g").selectAll(".node")
 
 var root = family(allCharacters)
 var map = {}
@@ -29,30 +30,53 @@ root.leaves().forEach(function(d) {
 
 cluster(root);
 
-function line(linknum) {
-  var beta = 0.95 - (linknum * 0.10)
+function line(linknum, d) {
+  var beta = 0.95 - (linknum * 0.15)
   return d3.radialLine()
     .curve(d3.curveBundle.beta(beta))
     .radius(function(d) { return d.y; })
     .angle(function(d) { return d.x / 180 * Math.PI; })
 }
 
-function drawPaths(pathSet, dataSet) {
-  return pathSet
-    .data(characterLinked(dataSet))
+var allPaths = [];
+root.leaves().forEach(function(d) {
+  Object.keys(links).forEach(function (linkType) {
+    d.data[linkType].forEach(function(linkTarget) {
+      let path = map[d.data.name].path(map[linkTarget])
+      path.linkType = linkType
+      allPaths.push(path)
+    })
+  })
+})
+
+allPaths.forEach(function (i, idx) {
+  var linknum = 1
+  allPaths.slice(idx + 1).forEach(function (j) {
+    var s1Name = i[0].data.name,
+      t1Name = i[i.length - 1].data.name,
+      s2Name = j[0].data.name,
+      t2Name = j[j.length - 1].data.name
+    if ((s1Name == s2Name && t1Name == t2Name) || (s1Name == t2Name && t1Name == s2Name)) {
+      linknum ++
+    }
+  })
+  i.linknum = linknum
+})
+
+Object.keys(links).forEach(function (linkType) {
+  links[linkType] = links[linkType]
+    .data(allPaths.filter(function (path) {
+      return path.linkType == linkType
+    }))
     .enter()
     .append("path")
-    .each(function(d) {
+    .each(function (d) {
       d.source = d[0]
       d.target = d[d.length - 1]
-      d3.select(this).attr("d", line(d.linknum))
+      d3.select(this).attr("d", line(d.linknum, d))
     })
-    .attr("class", `link ${dataSet}`)
-}
-
-killed = drawPaths(killed, "killed")
-wed = drawPaths(wed, "wed")
-parented = drawPaths(parented, "parented")
+    .attr("class", `link ${linkType}`)
+})
 
 node = node
   .data(root.leaves())
@@ -83,9 +107,9 @@ function purgeClasses(link) {
 function mouseovered(d) {
   node.each(function(n) { n.target = n.source = false; })
 
-  setClasses(wed, d)
-  setClasses(killed, d)
-  setClasses(parented, d)
+  setClasses(links.wed, d)
+  setClasses(links.parented, d)
+  setClasses(links.killed, d)
 
   node
     .classed("target", function(n) { return n.target; })
@@ -93,9 +117,9 @@ function mouseovered(d) {
 }
 
 function mouseouted(d) {
-  purgeClasses(killed);
-  purgeClasses(wed);
-  purgeClasses(parented);
+  purgeClasses(links.killed);
+  purgeClasses(links.wed);
+  purgeClasses(links.parented);
 
   node
     .classed("target", false)
@@ -125,12 +149,12 @@ function family(characters) {
   return d3.hierarchy(map[""])
 }
 
-function characterLinked(linkType) {
+/*function characterLinked(linkType) {
 
-  var links = [];
+  var paths = [];
   root.leaves().forEach(function(d) {
     d.data[linkType].forEach(function(i) {
-      links.push(map[d.data.name].path(map[i]))
+      paths.push(map[d.data.name].path(map[i]))
     })
   })
 
@@ -144,5 +168,5 @@ function characterLinked(linkType) {
     i.linknum = linknum
   })
 
-  return links
-}
+  return paths
+}*/
