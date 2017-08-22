@@ -17,8 +17,8 @@ var svg = d3.select("body").append("svg")
   .attr("transform", "translate(" + radius + "," + radius + ")")
 
 var killed = svg.append("g").selectAll(".link.killed"),
-  wed = d3.selectAll("svg > g .link.wed"),
-  parented = d3.selectAll("svg > g .link.parented"),
+  wed = svg.select("g").selectAll(".link.wed"),
+  parented = svg.select("g").selectAll(".link.parented"),
   node = svg.append("g").selectAll(".node")
 
 var root = family(allCharacters)
