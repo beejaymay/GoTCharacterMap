@@ -35,8 +35,6 @@ root.leaves().forEach(function(d) {
   map[d.data.name] = d;
 });
 
-let curLine = line;
-
 cluster(root);
 
 kill = kill
