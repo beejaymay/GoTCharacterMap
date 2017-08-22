@@ -169,7 +169,7 @@
   {"name":"stark.Robb Stark", "killed":["wildling.Wallen", "stark.Rickard Karstark"], "wed":["volantis.Talisa Maegyr"], "parented":[]},
   {"name":"stark.Arya Stark", "killed":["frey.Walder Frey", "frey.Walder Rivers", "frey.Lothar Frey", "braavos.The Waif", "braavos.Ghita", "lannister.Rorge", "baratheon.Meryn Trant", "lannister.Polliver"], "wed":[], "parented":[]},
   {"name":"stark.Jon Snow", "killed":["nightswatch.Othell Yarwyck", "nightswatch.Olly", "nightswatch.Bowen Marsh", "nightswatch.Alliser Thorne", "undead.White Walkers", "baratheon.Janos Slynt", "wildling.Mance Rayder", "wildling.Styr","nightswatch.Qhorin Halfhand", "wildling.Orell", "nightswatch.Karl Tanner"], "wed":[], "parented":[]},
-  {"name":"stark.Sansa Stark", "killed":[], "wed":[], "parented":[]},
+  {"name":"stark.Sansa Stark", "killed":["bolton.Ramsay Bolton"], "wed":[], "parented":[]},
   {"name":"stark.Rickon Stark", "killed":[], "wed":[], "parented":[]},
   {"name":"stark.Brann Stark", "killed":[], "wed":[], "parented":[]},
   {"name":"stark.Septa Mordane", "killed":[], "wed":[], "parented":[]},
