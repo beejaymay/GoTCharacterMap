@@ -28,6 +28,12 @@ links.wed = svg.append("g").selectAll(".link.wed");
 links.parented = svg.select("g").selectAll(".link.parented");
 links.killed = svg.select("g").selectAll(".link.killed");
 
+var legend = __WEBPACK_IMPORTED_MODULE_0_d3__["select"]("body svg").append("g").attr("class", "legend");
+
+var legendData = [["Killed", "link killed source"], ["Killed By", "link killed target"], ["Wed", "link wed source"], ["Parented", "link parented source"], ["Parented By", "link parented target"]];
+
+var lineGenerator = __WEBPACK_IMPORTED_MODULE_0_d3__["line"]();
+
 var node = svg.append("g").selectAll(".node");
 var root = family(__WEBPACK_IMPORTED_MODULE_1__characters_json__);
 var map = {};
@@ -159,6 +165,19 @@ node = node.data(root.leaves()).enter().append("text").attr("class", "node").att
   return d.data.key;
 }).on("mouseover", mouseovered).on("mouseout", mouseouted);
 
+legend.selectAll("path").data(legendData).enter().append("path").attr("class", function (d) {
+  return d[1];
+}).attr("d", function (d, i) {
+  console.log(d, i);
+  return lineGenerator([[25, 32 + i * 12], [55, 32 + i * 12]]);
+});
+
+legend.selectAll("text").data(legendData).enter().append("text").text(function (d) {
+  return d[0];
+}).attr("y", function (d, i) {
+  return 35 + i * 12;
+}).attr("x", 60);
+
 /***/ }),
 
 /***/ 332:
@@ -169,7 +188,7 @@ exports = module.exports = __webpack_require__(333)();
 
 
 // module
-exports.push([module.i, ".node {\n  font: 300 10px \"Helvetica Neue\", Helvetica, Arial, sans-serif;\n  fill: #bbb;\n}\n.node:hover {\n  fill: #000;\n}\n.node:hover,\n.node.source,\n.node.target {\n  font-weight: 600;\n}\n.node.parented.source,\n.node.parented.target {\n  fill: green;\n}\n.node.wed.source,\n.node.wed.target {\n  fill: blue;\n}\n.node.killed.source,\n.node.killed.target {\n  fill: red;\n}\n.link {\n  stroke: lightblue;\n  stroke-opacity: 0.4;\n  fill: none;\n  pointer-events: none;\n}\n.link.source,\n.link.target {\n  stroke-opacity: 1;\n  stroke-width: 2px;\n}\n.link.killed.target,\n.link.parented.target {\n  stroke-dasharray: 2px 2px;\n}\n.link.killed.source {\n  stroke: red;\n  stroke-dashoffset: 5px;\n}\n.link.killed.target {\n  stroke: red;\n}\n.link.wed.source,\n.link.wed.target {\n  stroke: blue;\n}\n.link.parented.source,\n.link.parented.target {\n  stroke: green;\n}\n", ""]);
+exports.push([module.i, "body,\nhtml {\n  margin: 0;\n}\n.legend {\n  font: 300 10px \"Helvetica Neue\", Helvetica, Arial, sans-serif;\n  font-weight: 600;\n}\n.node {\n  font: 300 10px \"Helvetica Neue\", Helvetica, Arial, sans-serif;\n  fill: #bbb;\n}\n.node:hover {\n  fill: #000;\n}\n.node:hover,\n.node.source,\n.node.target {\n  font-weight: 600;\n}\n.node.parented.source,\n.node.parented.target {\n  fill: green;\n}\n.node.wed.source,\n.node.wed.target {\n  fill: blue;\n}\n.node.killed.source,\n.node.killed.target {\n  fill: red;\n}\n.link {\n  stroke: lightblue;\n  stroke-opacity: 0.4;\n  fill: none;\n  pointer-events: none;\n}\n.link.source,\n.link.target {\n  stroke-opacity: 1;\n  stroke-width: 2px;\n}\n.link.killed.target,\n.link.parented.target {\n  stroke-dasharray: 2px 2px;\n}\n.link.killed.source {\n  stroke: red;\n  stroke-dashoffset: 5px;\n}\n.link.killed.target {\n  stroke: red;\n}\n.link.wed.source,\n.link.wed.target {\n  stroke: blue;\n}\n.link.parented.source,\n.link.parented.target {\n  stroke: green;\n}\n", ""]);
 
 // exports
 
