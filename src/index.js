@@ -20,6 +20,19 @@ var links = {}
   links.parented = svg.select("g").selectAll(".link.parented")
   links.killed = svg.select("g").selectAll(".link.killed")
 
+var legend = d3.select("body svg").append("g")
+  .attr("class", "legend")
+
+var legendData = [
+  ["Killed", "link killed source"],
+  ["Killed By", "link killed target"],
+  ["Wed", "link wed source"],
+  ["Parented", "link parented source"],
+  ["Parented By", "link parented target"]
+]
+
+var lineGenerator = d3.line();
+
 var node = svg.append("g").selectAll(".node")
 var root = family(allCharacters)
 var map = {}
@@ -156,4 +169,23 @@ node = node
   .attr("text-anchor", function(d) { return d.x < 180 ? "start" : "end" })
   .text(function(d) { return d.data.key })
   .on("mouseover", mouseovered)
-  .on("mouseout", mouseouted);
+  .on("mouseout", mouseouted)
+
+
+legend.selectAll("path")
+  .data(legendData)
+  .enter()
+  .append("path")
+  .attr("class", function (d) { return d[1] })
+  .attr("d", function (d, i) {
+    console.log(d, i)
+    return lineGenerator([[25, 32 + (i * 12)], [55, 32 + (i * 12)]])
+  })
+
+legend.selectAll("text")
+  .data(legendData)
+  .enter()
+  .append("text")
+  .text(function (d) { return d[0] })
+  .attr("y", function (d, i) { return 35 + (i * 12) })
+  .attr("x", 60)
