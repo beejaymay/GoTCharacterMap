@@ -162,7 +162,7 @@
   {"name":"smallfolk.Mycah", "killed":[], "wed":[], "parented":[]},
   {"name":"sparrow.The High Sparrow", "killed":[], "wed":[], "parented":[]},
   {"name":"stark.Rickard Stark", "killed":[], "wed":[], "parented":["stark.Benjen Stark", "stark.Eddard Stark", "stark.Brandon Stark", "stark.Lyanna Stark"]},
-  {"name":"stark.Lyanna Stark", "killed":[], "wed":["targaryen.Rhaegar Targaryen"], "parented":["stark.Jon Snow"]},
+  {"name":"stark.Lyanna Stark", "killed":[], "wed":[], "parented":["stark.Jon Snow"]},
   {"name":"stark.Benjen Stark", "killed":[], "wed":[], "parented":[]},
   {"name":"stark.Brandon Stark", "killed":[], "wed":[], "parented":[]},
   {"name":"stark.Eddard Stark", "killed":["targaryen.Arthur Dayne", "hightower.Gerold Hightower"], "wed":["tully.Catelyn Tully"], "parented":["stark.Sansa Stark", "stark.Arya Stark", "stark.Brann Stark", "stark.Rickon Stark", "stark.Robb Stark"]},

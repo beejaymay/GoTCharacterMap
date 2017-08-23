@@ -5,7 +5,27 @@
 
 .node:hover {
   fill: #000;
+}
+
+.node:hover,
+.node.source,
+.node.target {
   font-weight: 600;
+}
+
+.node.parented.source,
+.node.parented.target {
+  fill: green;
+}
+
+.node.wed.source,
+.node.wed.target {
+  fill: blue;
+}
+
+.node.killed.source,
+.node.killed.target {
+  fill: red;
 }
 
 .link {
@@ -13,10 +33,6 @@
   stroke-opacity: 0.4;
   fill: none;
   pointer-events: none;
-}
-
-.node--source {
-  fill: #2ca02c;
 }
 
 .link.source,

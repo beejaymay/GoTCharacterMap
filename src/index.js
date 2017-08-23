@@ -19,25 +19,94 @@ var links = {}
   links.wed = svg.append("g").selectAll(".link.wed")
   links.parented = svg.select("g").selectAll(".link.parented")
   links.killed = svg.select("g").selectAll(".link.killed")
-var node = svg.append("g").selectAll(".node")
 
+var node = svg.append("g").selectAll(".node")
 var root = family(allCharacters)
 var map = {}
+var allPaths = []
+
+function line(linknum, d) {
+  var beta = 0.95 - (linknum * 0.15)
+  return d3.radialLine()
+    .curve(d3.curveBundle.beta(beta))
+    .radius(function(d) { return d.y })
+    .angle(function(d) { return d.x / 180 * Math.PI })
+}
+
+function setClasses(d) {
+  Object.keys(links).forEach(function (linkType) {
+    links[linkType]
+      .classed("target", function(l) {
+        if (l.target === d) {
+          l.source.linkType = linkType
+          return l.source.source = true
+        }
+      })
+      .classed("source", function(l) {
+        if (l.source === d) {
+          l.target.linkType = linkType
+          return l.target.target = true
+        }
+      })
+      .filter(function(l) { return l.target === d || l.source === d })
+      .raise()
+
+    node.classed(linkType, function (n) { return n.linkType == linkType })
+  })
+  node
+    .classed("target", function(n) { return n.target })
+    .classed("source", function(n) { return n.source })
+}
+
+function purgeClasses() {
+  Object.keys(links).forEach(function (linkType) {
+    links[linkType]
+      .classed("target", false)
+      .classed("source", false)
+  })
+  node
+    .classed("target", false)
+    .classed("source", false)
+}
+
+function mouseovered(d) {
+  node.each(function(n) { n.target = n.source = false })
+  setClasses(d)
+}
+
+function mouseouted(d) {
+  purgeClasses()
+}
+
+function family(characters) {
+  var map = {};
+
+  function find(name, data) {
+    var node = map[name], i
+    if (!node) {
+      node = map[name] = data || {name: name, children: []}
+      if (name.length) {
+        node.parent = find(name.substring(0, i = name.lastIndexOf(".")))
+        node.parent.children.push(node)
+        node.key = name.substring(i + 1)
+      }
+    }
+    return node;
+  }
+
+  characters.forEach(function(d) {
+    find(d.name, d)
+  });
+
+  return d3.hierarchy(map[""])
+}
+
 root.leaves().forEach(function(d) {
   map[d.data.name] = d
 })
 
 cluster(root);
 
-function line(linknum, d) {
-  var beta = 0.95 - (linknum * 0.15)
-  return d3.radialLine()
-    .curve(d3.curveBundle.beta(beta))
-    .radius(function(d) { return d.y; })
-    .angle(function(d) { return d.x / 180 * Math.PI; })
-}
-
-var allPaths = [];
 root.leaves().forEach(function(d) {
   Object.keys(links).forEach(function (linkType) {
     d.data[linkType].forEach(function(linkTarget) {
@@ -83,89 +152,8 @@ node = node
   .append("text")
   .attr("class", "node")
   .attr("dy", "0.31em")
-  .attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + (d.y + 8) + ",0)" + (d.x < 180 ? "" : "rotate(180)"); })
-  .attr("text-anchor", function(d) { return d.x < 180 ? "start" : "end"; })
-  .text(function(d) { return d.data.key; })
+  .attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + (d.y + 8) + ",0)" + (d.x < 180 ? "" : "rotate(180)") })
+  .attr("text-anchor", function(d) { return d.x < 180 ? "start" : "end" })
+  .text(function(d) { return d.data.key })
   .on("mouseover", mouseovered)
   .on("mouseout", mouseouted);
-
-function setClasses(link, d) {
-  link
-    .classed("target", function(l) { if (l.target === d) return l.source.source = true; })
-    .classed("source", function(l) { if (l.source === d) return l.target.target = true; })
-    .filter(function(l) { return l.target === d || l.source === d; })
-    .raise()
-}
-
-function purgeClasses(link) {
-  link
-    .classed("target", false)
-    .classed("source", false);
-}
-
-function mouseovered(d) {
-  node.each(function(n) { n.target = n.source = false; })
-
-  setClasses(links.wed, d)
-  setClasses(links.parented, d)
-  setClasses(links.killed, d)
-
-  node
-    .classed("target", function(n) { return n.target; })
-    .classed("source", function(n) { return n.source; })
-}
-
-function mouseouted(d) {
-  purgeClasses(links.killed);
-  purgeClasses(links.wed);
-  purgeClasses(links.parented);
-
-  node
-    .classed("target", false)
-    .classed("source", false)
-}
-
-function family(characters) {
-  var map = {};
-
-  function find(name, data) {
-    var node = map[name], i
-    if (!node) {
-      node = map[name] = data || {name: name, children: []}
-      if (name.length) {
-        node.parent = find(name.substring(0, i = name.lastIndexOf(".")))
-        node.parent.children.push(node)
-        node.key = name.substring(i + 1)
-      }
-    }
-    return node;
-  }
-
-  characters.forEach(function(d) {
-    find(d.name, d)
-  });
-
-  return d3.hierarchy(map[""])
-}
-
-/*function characterLinked(linkType) {
-
-  var paths = [];
-  root.leaves().forEach(function(d) {
-    d.data[linkType].forEach(function(i) {
-      paths.push(map[d.data.name].path(map[i]))
-    })
-  })
-
-  links.forEach(function (i, idx) {
-    var linknum = 1
-    links.slice(idx + 1).forEach(function (j, idx) {
-      if (i[0].data.name == j[j.length - 1].data.name) {
-        linknum ++
-      }
-    })
-    i.linknum = linknum
-  })
-
-  return paths
-}*/
