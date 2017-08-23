@@ -7,7 +7,7 @@
   "main": "src/index.js",
   "scripts": {
     "build": "mkdirp build && webpack --config webpack-build.config.js",
-    "clean": "rm -rf build",
+    "clean": "rm -rf build && rm -rf docs",
     "html": "copyfiles -u 1 src/*.html src/**/*.html build",
     "lint": "eslint . --ignore-path .gitignore",
     "serve": "webpack-dev-server --config webpack-dev.config.js --host 0.0.0.0",
