@@ -1,5 +1,10 @@
 body, html {
   margin: 0;
+  background-color: #111;
+}
+
+text {
+  fill: #ccc;
 }
 
 .legend {
@@ -9,11 +14,11 @@ body, html {
 
 .node {
   font: 300 10px "Helvetica Neue", Helvetica, Arial, sans-serif;
-  fill: #bbb;
+  fill: #ccc;
 }
 
 .node:hover {
-  fill: #000;
+  fill: white;
 }
 
 .node:hover,
@@ -24,26 +29,26 @@ body, html {
 
 .node.parented.source,
 .node.parented.target {
-  fill: green;
+  fill: #4fd64f;
 }
 
 .node.resurrected.source,
 .node.resurrected.target {
-  fill: #c07cff;
+  fill: #e4cc33;
 }
 
 .node.wed.source,
 .node.wed.target {
-  fill: blue;
+  fill: #2a94bb;
 }
 
 .node.killed.source,
 .node.killed.target {
-  fill: red;
+  fill: #ec3d3d;
 }
 
 .link {
-  stroke: lightblue;
+  stroke: #333;
   stroke-opacity: 0.4;
   fill: none;
   pointer-events: none;
@@ -63,20 +68,20 @@ body, html {
 
 .link.resurrected.source,
 .link.resurrected.target {
-  stroke: #c07cff;
+  stroke: #e4cc33;
 }
 
 .link.killed.source,
 .link.killed.target {
-  stroke: red;
+  stroke: #ec3d3d;
 }
 
 .link.wed.source,
 .link.wed.target {
-  stroke: blue;
+  stroke: #2a94bb;
 }
 
 .link.parented.source,
 .link.parented.target {
-  stroke: green;
+  stroke: #4fd64f;
 }
