@@ -12,31 +12,32 @@ var cluster = d3.cluster()
 var svg = d3.select("body").append("svg")
   .attr("width", diameter)
   .attr("height", diameter)
-  .append("g")
+
+var chart = svg.append("g")
   .attr("transform", "translate(" + radius + "," + radius + ")")
 
 var links = {}
-  links.wed = svg.append("g").selectAll(".link.wed")
-  links.parented = svg.select("g").selectAll(".link.parented")
-  links.killed = svg.select("g").selectAll(".link.killed")
-  links.resurrected = svg.select("g").selectAll(".link.resurrected")
+  links.wed = chart.append("g").selectAll(".link.wed")
+  links.parented = chart.select("g").selectAll(".link.parented")
+  links.killed = chart.select("g").selectAll(".link.killed")
+  links.resurrected = chart.select("g").selectAll(".link.resurrected")
 
-var legend = d3.select("body svg").append("g")
+var legend = svg.append("g")
   .attr("class", "legend")
 
 var legendData = [
   ["Killed", "link killed source"],
   ["Killed By", "link killed target"],
-  ["Wed", "link wed source"],
   ["Parented", "link parented source"],
   ["Parented By", "link parented target"],
   ["Resurrected", "link resurrected source"],
-  ["Resurrected By", "link resurrected target"]
+  ["Resurrected By", "link resurrected target"],
+  ["Married", "link wed source"]
 ]
 
-var lineGenerator = d3.line();
+var lineGenerator = d3.line()
 
-var node = svg.append("g").selectAll(".node")
+var node = chart.append("g").selectAll(".node")
 var root = family(allCharacters)
 var map = {}
 var allPaths = []
@@ -50,28 +51,30 @@ function line(linknum, d) {
 }
 
 function setClasses(d) {
-  Object.keys(links).forEach(function (linkType) {
-    links[linkType]
-      .classed("target", function(l) {
-        if (l.target === d) {
-          l.source.linkType = linkType
-          return l.source.source = true
-        }
-      })
-      .classed("source", function(l) {
-        if (l.source === d) {
-          l.target.linkType = linkType
-          return l.target.target = true
-        }
-      })
-      .filter(function(l) { return l.target === d || l.source === d })
-      .raise()
-
-    node.classed(linkType, function (n) { return n.linkType == linkType })
+  d.links.forEach(function (l) {
+    Object.keys(links).forEach(function (linkType) {
+      links[l.linkType].filter(function (p) { return p == l })
+        .classed("target", function(l) {
+          if (l.target === d) {
+            l.source.linkType = linkType
+            return l.source.source = true
+          }
+        })
+        .classed("source", function(l) {
+          if (l.source === d) {
+            l.target.linkType = linkType
+            return l.target.target = true
+          }
+        })
+        .filter(function(l) { return l.target === d || l.source === d })
+        .raise()
+    })
+    node
+      .filter(function (n) { return n == l.target || n == l.source })
+      .classed(l.linkType, function(n) { return n !== d })
+      .classed("target", function(n) { return n.target })
+      .classed("source", function(n) { return n.source })
   })
-  node
-    .classed("target", function(n) { return n.target })
-    .classed("source", function(n) { return n.source })
 }
 
 function purgeClasses() {
@@ -81,8 +84,7 @@ function purgeClasses() {
       .classed("source", false)
   })
   node
-    .classed("target", false)
-    .classed("source", false)
+    .attr("class", "node")
 }
 
 function mouseovered(d) {
@@ -95,7 +97,7 @@ function mouseouted(d) {
 }
 
 function family(characters) {
-  var map = {};
+  var map = {}
 
   function find(name, data) {
     var node = map[name], i
@@ -107,12 +109,12 @@ function family(characters) {
         node.key = name.substring(i + 1)
       }
     }
-    return node;
+    return node
   }
 
   characters.forEach(function(d) {
     find(d.name, d)
-  });
+  })
 
   return d3.hierarchy(map[""])
 }
@@ -121,29 +123,56 @@ root.leaves().forEach(function(d) {
   map[d.data.name] = d
 })
 
-cluster(root);
+cluster(root)
 
+// Loop over each leaf node
 root.leaves().forEach(function(d) {
+  // For each link type (killed, parented, etc)
   Object.keys(links).forEach(function (linkType) {
+    // For each link of said type on this leaf node
     d.data[linkType].forEach(function(linkTarget) {
+      // Create path from this node through the hierarchy to the target node
       let path = map[d.data.name].path(map[linkTarget])
+      // Save the link type on the path for later use
       path.linkType = linkType
+      // Save a reference to the path for later use
       allPaths.push(path)
     })
   })
 })
 
+// Loop over each leaf node again
+root.leaves().forEach(function(d) {
+  // Create an array to hold references to links to/from this node
+  d.links = []
+  // Loop over our handy array of links we created in the previous loop
+  allPaths.forEach(function (p) {
+    // If the link is to or from this node
+    if (p[0].data.name == d.data.name || p[p.length - 1].data.name == d.data.name) {
+      // Stuff it in the links member array for this node
+      d.links.push(p)
+    }
+  })
+})
+
+// Loop over all links
 allPaths.forEach(function (i, idx) {
+  // Initiate a count representing the number of links between two given nodes
   var linknum = 1
+  // Loop over a shrinking set of all the links again
   allPaths.slice(idx + 1).forEach(function (j) {
+    // Easier to grok when these are named
     var s1Name = i[0].data.name,
       t1Name = i[i.length - 1].data.name,
       s2Name = j[0].data.name,
       t2Name = j[j.length - 1].data.name
+    // If a link already exists between the two nodes represented in THIS link
     if ((s1Name == s2Name && t1Name == t2Name) || (s1Name == t2Name && t1Name == s2Name)) {
+      // Increment the link number
       linknum ++
     }
   })
+  // Assign the link number to the link, to be used in determining the beta of the curved line between the two.
   i.linknum = linknum
 })
 
@@ -181,7 +210,6 @@ legend.selectAll("path")
   .append("path")
   .attr("class", function (d) { return d[1] })
   .attr("d", function (d, i) {
-    console.log(d, i)
     return lineGenerator([[25, 32 + (i * 12)], [55, 32 + (i * 12)]])
   })
 
