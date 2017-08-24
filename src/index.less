@@ -27,6 +27,11 @@ body, html {
   fill: green;
 }
 
+.node.resurrected.source,
+.node.resurrected.target {
+  fill: #c07cff;
+}
+
 .node.wed.source,
 .node.wed.target {
   fill: blue;
@@ -51,15 +56,17 @@ body, html {
 }
 
 .link.killed.target,
-.link.parented.target {
+.link.parented.target,
+.link.resurrected.target {
   stroke-dasharray: 2px 2px;
 }
 
-.link.killed.source {
-  stroke: red;
-  stroke-dashoffset: 5px;
+.link.resurrected.source,
+.link.resurrected.target {
+  stroke: #c07cff;
 }
 
+.link.killed.source,
 .link.killed.target {
   stroke: red;
 }

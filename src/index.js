@@ -19,6 +19,7 @@ var links = {}
   links.wed = svg.append("g").selectAll(".link.wed")
   links.parented = svg.select("g").selectAll(".link.parented")
   links.killed = svg.select("g").selectAll(".link.killed")
+  links.resurrected = svg.select("g").selectAll(".link.resurrected")
 
 var legend = d3.select("body svg").append("g")
   .attr("class", "legend")
@@ -28,7 +29,9 @@ var legendData = [
   ["Killed By", "link killed target"],
   ["Wed", "link wed source"],
   ["Parented", "link parented source"],
-  ["Parented By", "link parented target"]
+  ["Parented By", "link parented target"],
+  ["Resurrected", "link resurrected source"],
+  ["Resurrected By", "link resurrected target"]
 ]
 
 var lineGenerator = d3.line();
